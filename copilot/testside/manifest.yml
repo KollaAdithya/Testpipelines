@@ -1,0 +1,96 @@
+# The manifest for the "testside" service.
+# Read the full specification for the "Load Balanced Web Service" type at:
+#  https://aws.github.io/copilot-cli/docs/manifest/lb-web-service/
+
+# Your service name will be used in naming your resources like log groups, ECS services, etc.
+name: testside
+type: Load Balanced Web Service
+
+# Distribute traffic to your service.
+http:
+  # Requests to this path will be forwarded to your service.
+  # To match all requests you can use the "/" path.
+  path: 'testside'
+  # You can specify a custom health check path. The default is "/".
+  # healthcheck: '/'
+  #alias: ["gingo.adi.peanutsninja.com", "*.adi.peanutsninja.com"]
+
+# Configuration for your containers and service.
+image:
+  # Docker build arguments. For additional overrides: https://aws.github.io/copilot-cli/docs/manifest/lb-web-service/#image-build
+  build: demo/web/Dockerfile
+  # Port exposed through your container to route traffic to it.
+  port: 80
+
+cpu: 256       # Number of CPU units for the task.
+memory: 512    # Amount of memory in MiB used by the task.
+platform: linux/x86_64  # See https://aws.github.io/copilot-cli/docs/manifest/lb-web-service/#platform
+#count: 1       # Number of tasks that should be running in your service.
+exec: true     # Enable running commands in your container.
+# network:
+#   vpc:
+#     security_groups:
+#       - sg-0c10c4fe23f5e5361
+#       - sg-09295097b2a41b59d
+#       - from_cfn: MyUserDBAccessSecurityGroup1
+#       - from_cfn: MyUserDBAccessSecurityGroup2
+#entrypoint: ./script.sh
+# storage:
+  # readonly_fs: true       # Limit to read-only access to mounted root filesystems.
+
+# network:
+#   vpc:
+#     security_groups:
+#     - sg-0195197b5485e6d69
+ 
+# Optional fields for more advanced use-cases.
+#
+# variables:                    # Pass environment variables as key value pairs.
+#  LOG_LEVEL: info
+#  MY_APPMESH_NAME: 
+#     from_cfn: ${copilot-application}-${copilot-environment}-MyAppMeshName
+
+# secrets:                      # Pass secrets from AWS Systems Manager (SSM) Parameter Store.
+#  gitusername:                  # The key is the name of the environment variable, the value is the name of the SSM parameter.
+#   from_cfn: MySSMSecret
+#  gitpassword:
+#   secretsmanager:
+#     from_cfn: MySecretManagerSecret
+# environments:
+#   prod:
+#     gitusername:
+#       from_cfn: MyOVERRIDESSMSecret
+#       DB:
+#        secretsmanager: 'valo/testing/mysql'
+
+# logging:
+#   retention: 60
+
+
+# You can override any of the values defined above by environment.
+# environments: 
+#   testpri:
+#     network:
+#       vpc:
+#         placement: 'private' # The tasks will be placed on private subnets for the "testpri" environment. 
+#   test:
+#     count: 2                # Number of tasks to run for the "test" environment.
+#     deployment:           # The deployment strategy for the "test" environment.
+#         rolling: 'recreate' # Stops existing tasks before new ones are started for faster deployments.
+
+# sidecars:
+#   nginx:
+#     port: 8080
+#     image: '535307839156.dkr.ecr.us-west-2.amazonaws.com/testsidecar:mywish'
+#     simage:
+#       build:
+#         dockerfile: "/Dockerfile"
+#     variables:
+#       NGINX_PORT: 8080
+
+# count:
+#   range: 1-3
+#   cooldown:
+#     in: 60s
+#     out: 120s
+#   cpu_percentage: 20
